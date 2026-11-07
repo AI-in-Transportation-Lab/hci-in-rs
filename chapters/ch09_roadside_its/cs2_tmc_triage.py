@@ -187,36 +187,40 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(1, 3, figsize=(13, 4.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(1, 3, figsize=(6.2, 2.45))
 for tau, c in [(0.45, RUST), (0.50, GOLD), (0.55, SAGE), (0.60, SKY)]:   # (a) alarm rate
-    ax[0].plot(hours, load(tau)[0] / 6 / OPS, color=c, lw=2, label=f"threshold {tau:.2f}")
+    ax[0].plot(hours, load(tau)[0] / 6 / OPS, color=c, lw=1.2, label=f"{tau:.2f}")
 ax[0].axhspan(0, 1, color="#DCE5E1", zorder=0)
-ax[0].axhline(2, color=RUST, ls="--", lw=1)
-ax[0].text(10.2, 0.08, "about 1 per 10 min", fontsize=7.5)
-ax[0].text(0.3, 2.06, "about 2 per 10 min", fontsize=7.5, color=RUST)
-ax[0].set(xlabel="Hour of day", ylabel="Alerts per operator per 10 min", xlim=(0, 23), ylim=(0, 3.8),
-          title="(a) Alert load against alarm-rate guidance")
-ax[0].legend(fontsize=7.5, frameon=False, loc="upper center", ncol=2)
+ax[0].axhline(2, color=RUST, ls="--", lw=0.6)
+ax[0].text(10.2, 0.08, "about 1 per 10 min", fontsize=6)
+ax[0].text(0.15, 1.93, "2 per 10 min", fontsize=6, color=RUST, va="top")
+ax[0].set(xlabel="Hour of day", ylabel="Alerts per operator per 10 min", xlim=(0, 23), ylim=(0, 4.2),
+          title="(a) Alert load vs. guidance")
+ax[0].legend(fontsize=6, loc="upper center", ncol=2, title="threshold",
+             title_fontsize=6)
 x = np.arange(3)                                                         # (b) waits
 for k, (tau, c) in enumerate([(0.45, RUST), (0.50, GOLD), (0.55, SAGE)]):
     r = grid[grid.tau == tau].set_index("policy").loc[["FCFS", "score", "harm"]]
     ax[1].bar(x + (k - 1) * 0.26, r.wait_major, 0.25, color=c, edgecolor=INK, lw=0.5,
               label=f"threshold {tau:.2f}")
-ax[1].set_xticks(x, ["first come,\nfirst served", "highest score\nfirst",
-                     "highest expected\nharm first"], fontsize=8)
+ax[1].set_xticks(x, ["arrival\norder", "highest\nscore", "expected\nharm"], fontsize=6)
 ax[1].set(ylabel="Mean wait, lane-blocking incidents (min)",
-          title="(b) Triage order protects the worst incidents")
-ax[1].legend(fontsize=7.5, frameon=False)
+          title="(b) Triage order and waiting")
+ax[1].legend(fontsize=6)
 for p, c, m in [("FCFS", RUST, "o"), ("score", GOLD, "s"), ("harm", SAGE, "D")]:  # (c)
     r = grid[grid.policy == p]
-    ax[2].plot(r.tau, r.sec_per_1000, "-" + m, color=c, mec=INK, ms=5, lw=2,
-               label={"FCFS": "first come, first served", "score": "highest score first",
-                      "harm": "highest expected harm first"}[p])
+    ax[2].plot(r.tau, r.sec_per_1000, "-" + m, color=c, mec=INK, ms=3, lw=1.2,
+               label={"FCFS": "arrival order", "score": "highest score",
+                      "harm": "expected harm"}[p])
 ax[2].axvspan(0.38, 0.425, color="#F6DCC4", zorder=0)
-ax[2].text(0.402, 62, "over\ncapacity", fontsize=7.5, ha="center")
+ax[2].text(0.402, 52, "over\ncapacity", fontsize=6, ha="center")
 ax[2].set(xlim=(0.38, 0.72), xlabel="Alert threshold on the AI score",
           ylabel="Secondary crashes per 1,000 incidents",
-          title="(c) Too many alerts cost more than too few")
-ax[2].legend(fontsize=7.5, frameon=False, loc="upper right")
-fig.tight_layout(); fig.savefig("chap09_fig02_tmc_triage.png", dpi=200)
+          title="(c) Too many alerts cost more")
+ax[2].legend(fontsize=6, loc="upper right")
+fig.tight_layout(); fig.savefig("chap09_fig02_tmc_triage.png", dpi=300)

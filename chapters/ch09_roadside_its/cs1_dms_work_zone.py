@@ -144,50 +144,57 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(1, 3, figsize=(13, 4.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(1, 3, figsize=(6.2, 2.45))
 x = np.arange(len(MSG))                                              # (a) who can read
 for j, (g, c) in enumerate([("under 65", SAGE), ("65 and over", GOLD)]):
     r = read[read.group == g]
     ax[0].bar(x + (j - 0.5) * 0.38, r.monte_carlo, 0.36, color=c, edgecolor=INK, lw=0.5,
-              label=f"{g} (simulation)")
-    ax[0].plot(x + (j - 0.5) * 0.38, r.analytic, "D", color=INK, ms=4)
-ax[0].plot([], [], "D", color=INK, ms=4, label="closed form")
-ax[0].set_xticks(x, [f"{k}\n{sum(MSG[k][1])} words, {len(MSG[k][1])} ph." for k in MSG],
-                 fontsize=8)
+              label=g)
+    ax[0].plot(x + (j - 0.5) * 0.38, r.analytic, "D", color=INK, ms=2.5)
+ax[0].plot([], [], "D", color=INK, ms=2.5, label="closed form")
+ax[0].set_xticks(x, [f"{k}: {sum(MSG[k][1])} words, {len(MSG[k][1])} ph." for k in MSG],
+                 fontsize=6, rotation=30, ha="right", rotation_mode="anchor")
 ax[0].set(ylim=(0, 1.08), ylabel="Share who can read the whole message",
-          title="(a) Two-phase messages are not read at 65 mph")
-ax[0].legend(fontsize=7.5, frameon=False, loc="upper right")
+          title="(a) Who can read each message")
+ax[0].legend(fontsize=6, loc="upper right", bbox_to_anchor=(1.02, 0.8),
+             handlelength=1.2)
 # (b) stopping distance
 bins = np.linspace(0, 1100, 70)
-ax[1].hist(stop_dist(v0, t_u, a), bins, density=True, histtype="step", lw=2, color=RUST,
-           label="without warning")
-ax[1].hist(stop_dist(v_w, t_w, a), bins, density=True, histtype="step", lw=2, color=SAGE,
-           label="after reading the warning")
-ax[1].axvline(S, color=INK, ls="--", lw=1.2)
+ax[1].hist(stop_dist(v0, t_u, a), bins, density=True, histtype="step", lw=1.2, color=RUST,
+           label="no warning")
+ax[1].hist(stop_dist(v_w, t_w, a), bins, density=True, histtype="step", lw=1.2, color=SAGE,
+           label="warned")
+ax[1].axvline(S, color=INK, ls="--", lw=0.7)
 ax[1].set_ylim(0, ax[1].get_ylim()[1] * 1.25)
-ax[1].text(S - 10, ax[1].get_ylim()[1] * 0.92, "sight distance\n500 ft", fontsize=7.5,
+ax[1].text(S - 10, ax[1].get_ylim()[1] * 0.92, "sight distance\n500 ft", fontsize=6,
            ha="right")
-ax[1].axvline(ssd, color=GOLD, ls=":", lw=1.6)
-ax[1].text(ssd + 10, ax[1].get_ylim()[1] * 0.92, "AASHTO SSD\n645 ft", fontsize=7.5)
+ax[1].axvline(ssd, color=GOLD, ls=":", lw=1)
+ax[1].text(ssd + 10, ax[1].get_ylim()[1] * 0.92, "AASHTO SSD\n645 ft", fontsize=6)
 ax[1].set(xlabel="Distance needed to stop (ft)", ylabel="Density",
-          title="(b) Stopping distance at a hidden queue")
-ax[1].legend(fontsize=7.5, frameon=False, loc="upper right", bbox_to_anchor=(1, 0.75))
+          title="(b) Stopping at a hidden queue")
+ax[1].legend(fontsize=6, loc="center right", bbox_to_anchor=(1, 0.55), handlelength=1.0,
+             handletextpad=0.4, borderpad=0)
 # (c) by sight distance
 Ss = np.arange(300, 1001, 25)
 pu = [p_fail_quad(s, V_MU, V_SD, *PRT["unwarned"]) for s in Ss]
 pw = [p_fail_quad(s, VW_MU, VW_SD, *PRT["warned"]) for s in Ss]
 pm = [respond * b + (1 - respond) * u for u, b in zip(pu, pw)]
-for y, c, lab in [(pu, RUST, "without warning"), (pm, GOLD, "corridor with message B"),
-                  (pw, SAGE, "drivers who act on it")]:
-    ax[2].plot(Ss, y, color=c, lw=2, label=lab)
+for y, c, lab in [(pu, RUST, "no warning"), (pm, GOLD, "with message B"),
+                  (pw, SAGE, "drivers who act")]:
+    ax[2].plot(Ss, y, color=c, lw=1.2, label=lab)
 for s in [400, 500, 600, 700, 800]:
     d_u, d_w = stop_dist(v0, t_u, a), stop_dist(v_w, t_w, a)
-    ax[2].plot(s, (d_u > s).mean(), "o", color=RUST, mec=INK, ms=5)
-    ax[2].plot(s, (d_w > s).mean(), "o", color=SAGE, mec=INK, ms=5)
+    ax[2].plot(s, (d_u > s).mean(), "o", color=RUST, mec=INK, ms=3)
+    ax[2].plot(s, (d_w > s).mean(), "o", color=SAGE, mec=INK, ms=3)
 ax[2].set_yscale("log")
+ax[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
 ax[2].set(ylim=(1e-4, 1.2), xlabel="Sight distance to the queue (ft)",
           ylabel="Share who cannot stop",
-          title="(c) Quadrature (lines) vs. simulation (dots)")
-ax[2].legend(fontsize=7.5, frameon=False, loc="lower left")
-fig.tight_layout(); fig.savefig("chap09_fig01_dms_queue.png", dpi=200)
+          title="(c) Quadrature vs. simulation")
+ax[2].legend(fontsize=6, loc="lower left")
+fig.tight_layout(); fig.savefig("chap09_fig01_dms_queue.png", dpi=300)
