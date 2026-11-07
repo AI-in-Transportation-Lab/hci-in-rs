@@ -126,49 +126,53 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 col = {"full keyboard": RUST, "predictive list": GOLD, "voice + confirm": SAGE}
 a = ax[0, 0]                                                   # (a) total eyes-off-road
 bins = np.linspace(0, 30, 61)
 for d, t in pop.items():
-    a.hist(t.teort, bins, density=True, histtype="step", lw=2, color=col[d],
+    a.hist(t.teort, bins, density=True, histtype="step", lw=1.3, color=col[d],
            label=f"{d}: {(t.teort > 12).mean():.1%} over 12 s")
-a.axvline(12, color=INK, ls="--", lw=1.1)
+a.axvline(12, ymax=0.62, color=INK, ls="--", lw=0.7)
 a.set(xlabel="Total eyes-off-road time per task (s)", ylabel="Density",
       title="(a) Visual demand of three designs")
-a.legend(fontsize=8, frameon=False, loc="upper right")
+a.legend(fontsize=6.5, loc="upper right")
 a = ax[0, 1]                                                   # (b) long-glance risk
 kk = np.arange(1, 13)
 for med, sd, c in [(1.30, 0.45, RUST), (1.10, 0.40, GOLD), (0.85, 0.35, SAGE)]:
-    a.plot(kk, 1 - stats.lognorm.cdf(2, sd, scale=med) ** kk, color=c, lw=2.2,
+    a.plot(kk, 1 - stats.lognorm.cdf(2, sd, scale=med) ** kk, color=c, lw=1.4,
            label=f"median glance {med:.2f} s")
 for (d, k, p_c, p_s, _, _) in chk:
-    a.plot(k, p_s, "o", color=INK, ms=6)
-a.plot([], [], "o", color=INK, ms=6, label="simulated designs")
+    a.plot(k, p_s, "o", color=INK, ms=3.9)
+a.plot([], [], "o", color=INK, ms=3.9, label="simulated designs")
 a.set(xlabel="Glances per task", ylabel="P(at least one glance over 2 s)", ylim=(0, 1),
       title="(b) Every extra glance is another chance")
-a.legend(fontsize=8, frameon=False, loc="lower right")
+a.legend(fontsize=6.5, loc="upper left")
 a = ax[1, 0]                                                   # (c) occlusion test
 data = [tsot_closed(pop[d].teort.to_numpy()[:2000]) for d in DESIGNS]
 bp = a.boxplot(data, patch_artist=True, widths=0.5, showfliers=False,
-               medianprops=dict(color=INK, lw=1.6))
+               medianprops=dict(color=INK, lw=1))
 for patch, d in zip(bp["boxes"], DESIGNS):
     patch.set(facecolor=col[d], alpha=0.6)
-a.axhline(12, color=INK, ls="--", lw=1.1)
-a.set_xticks([1, 2, 3], list(DESIGNS), fontsize=8.5)
+a.axhline(12, color=INK, ls="--", lw=0.7)
+a.set_xticks([1, 2, 3], list(DESIGNS), fontsize=6.5)
 a.set(ylabel="Total shutter-open time (s)",
       title="(c) Occlusion test, 1.5 s open / 1.5 s closed")
 a = ax[1, 1]                                                   # (d) usability testing
 nn = np.arange(1, 41)
-a.plot(nn, [found_homogeneous(n) for n in nn], color=GOLD, lw=2.2,
+a.plot(nn, [found_homogeneous(n) for n in nn], color=GOLD, lw=1.4,
        label="every problem equally easy to find (p = 0.3)")
-a.plot(nn, [found_heterogeneous(n) for n in nn], color=SAGE, lw=2.2,
+a.plot(nn, [found_heterogeneous(n) for n in nn], color=SAGE, lw=1.4,
        label="detectability varies, beta(0.6, 1.4)")
-a.plot(disc.participants, disc.beta_sim, "o", color=INK, ms=5, label="simulated tests")
-a.axvline(5, color=RUST, ls=":", lw=1.4)
-a.text(5.5, 0.12, "five participants", fontsize=8, color=RUST)
+a.plot(disc.participants, disc.beta_sim, "o", color=INK, ms=3.2, label="simulated tests")
+a.axvline(5, color=RUST, ls=":", lw=0.9)
+a.text(5.8, 0.45, "five participants", fontsize=6.5, color=RUST)
 a.set(xlabel="Participants in the usability test", ylabel="Share of problems found",
       ylim=(0, 1.02), title="(d) Five participants find less than promised")
-a.legend(fontsize=8, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap04_fig01_glance_usability.png", dpi=200)
+a.legend(fontsize=6.5, loc="lower right")
+fig.tight_layout(); fig.savefig("chap04_fig01_glance_usability.png", dpi=300)
