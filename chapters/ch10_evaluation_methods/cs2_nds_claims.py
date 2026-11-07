@@ -152,8 +152,12 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig = plt.figure(figsize=(13, 8.4))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig = plt.figure(figsize=(6.2, 5.4))
 gs = fig.add_gridspec(2, 2, height_ratios=[1.15, 1], hspace=0.42, wspace=0.28)
 a0 = fig.add_subplot(gs[0, :])
 a1, a2 = fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1])
@@ -171,17 +175,18 @@ est = [("Crude, case-control sample", crude[0], crude[1], crude[2], RUST),
 y = np.arange(len(est))[::-1].astype(float)
 y[4:] -= 0.6
 for yy, (lab, e, lo_, hi_, c) in zip(y, est):                     # (a) forest plot
-    a0.plot([lo_, hi_], [yy, yy], color=c, lw=2.4, solid_capstyle="round")
-    a0.plot(e, yy, "o", color=c, mec=INK, ms=7)
-    a0.text(0.97, yy, lab, ha="right", va="center", fontsize=8.5)
-a0.axvline(3.5, color=INK, ls="--", lw=1.1)
-a0.text(3.42, y[0] + 0.55, "true OR, phone vs no task (3.5)", fontsize=8, ha="right")
-a0.axvline(or_true, color=INK, ls=":", lw=1.1)
+    a0.plot([lo_, hi_], [yy, yy], color=c, lw=1.4, solid_capstyle="round")
+    a0.plot(e, yy, "o", color=c, mec=INK, ms=4.2)
+    a0.text(0.97, yy, lab, ha="right", va="center", fontsize=6.5)
+a0.axvline(3.5, color=INK, ls="--", lw=0.7)
+a0.text(3.42, y[0] + 0.55, "true OR, phone vs no task (3.5)", fontsize=6.5, ha="right")
+a0.axvline(or_true, color=INK, ls=":", lw=0.7)
 a0.text(or_true * 1.04, y[-1] - 0.75,
         f"human-coded OR, phone vs all other ({or_true:.2f})",
-        fontsize=8, ha="left")
+        fontsize=6.5, ha="left")
 a0.set_xscale("log")
 a0.set_xticks([1, 2, 3, 4, 6, 10, 16], ["1", "2", "3", "4", "6", "10", "16"])
+a0.spines["left"].set_visible(False)
 a0.set(xlim=(0.35, 20), ylim=(y[-1] - 1.1, y[0] + 1.0), yticks=[],
        xlabel="Odds ratio for visual-manual phone use (log scale)",
        title="(a) The same question, seven estimates")
@@ -189,18 +194,19 @@ sp_grid = np.linspace(0.80, 1.0, 200)                              # (b) attenua
 q1, q0 = truth[case].mean(), truth[~case].mean()
 for se_, c in [(0.85, RUST), (0.95, SAGE)]:
     o1, o0 = se_ * q1 + (1 - sp_grid) * (1 - q1), se_ * q0 + (1 - sp_grid) * (1 - q0)
-    a1.plot(sp_grid, o1 / (1 - o1) / (o0 / (1 - o0)), color=c, lw=2,
+    a1.plot(sp_grid, o1 / (1 - o1) / (o0 / (1 - o0)), color=c, lw=1.2,
             label=f"sensitivity {se_:.2f}")
-a1.plot(SP_AI, or_naive, "D", color=INK, ms=7, label="simulated AI coder")
-a1.axhline(or_true, color=INK, ls=":", lw=1.1)
+a1.plot(SP_AI, or_naive, "D", color=INK, ms=4.2, label="simulated AI coder")
+a1.axhline(or_true, color=INK, ls=":", lw=0.7)
 a1.set(xlabel="Specificity of the AI coder", ylabel="Uncorrected odds ratio",
        title="(b) Coding errors pull the OR toward 1")
-a1.legend(fontsize=8, frameon=False, loc="upper left")
+a1.legend(fontsize=6.5, loc="center left")
 a2.hist(np.array(bp) * 0.5 * 100, bins=40, color=SKY, edgecolor="white")  # (c) the claim
-for v, c, lab in [(half, INK, "exact"), (0.5 * paf_miettinen, SAGE, "Miettinen, adjusted"),
+for v, c, lab in [(half, INK, "exact"), (0.5 * paf_miettinen, SAGE, "Miettinen, adj."),
                   (0.5 * paf_levin, RUST, "Levin, crude")]:
-    a2.axvline(v * 100, color=c, lw=2, ls="--" if lab == "exact" else "-", label=lab)
+    a2.axvline(v * 100, ymax=0.74, color=c, lw=1.2, ls="--" if lab == "exact" else "-", label=lab)
 a2.set(xlabel="Events prevented by halving phone use (%)", ylabel="Bootstrap replicates",
        title="(c) A claim with its uncertainty")
-a2.legend(fontsize=8, frameon=False, loc="upper right")
-fig.savefig("chap10_fig02_nds_claims.png", dpi=200, bbox_inches="tight")
+a2.set_ylim(0, a2.get_ylim()[1] * 1.3)
+a2.legend(fontsize=6.5, loc="upper left")
+fig.savefig("chap10_fig02_nds_claims.png", dpi=300, bbox_inches="tight")

@@ -162,52 +162,56 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 a = ax[0, 0]                                                   # (a) one 24-driver test
 for k, (h, c) in enumerate([("voice", SAGE), ("touchscreen", RUST)]):
     t = tests[h].sort_values("teort").reset_index(drop=True)
     ok = t.c1 & t.c2 & t.c3
-    a.scatter(np.arange(24), t.teort, s=38, color=np.where(ok, c, "white"), edgecolor=c,
-              lw=1.5, label=f"{h}: {int(ok.sum())} of 24 meet all three", zorder=3)
-a.axhline(12, color=INK, ls="--", lw=1.1)
-a.text(0.3, 12.4, "12 s total eyes-off-road", fontsize=8)
+    a.scatter(np.arange(24), t.teort, s=15.8, color=np.where(ok, c, "white"), edgecolor=c,
+              lw=1, label=f"{h}: {int(ok.sum())} of 24 meet all three", zorder=3)
+a.axhline(12, color=INK, ls="--", lw=0.7)
+a.text(0.3, 12.4, "12 s total eyes-off-road", fontsize=6.5)
 a.set(xlabel="Driver (sorted)", ylabel="Total eyes-off-road time (s)",
       title="(a) One NHTSA-style test; open markers fail a criterion")
-a.legend(fontsize=8, frameon=False, loc="upper left")
+a.legend(fontsize=6.5, loc="upper left")
 # (b) operating characteristic
 a = ax[0, 1]
 qq = np.linspace(0.6, 1.0, 200)
-a.plot(qq, stats.binom.sf(20, 24, qq), color=GOLD, lw=2.2, label="binomial: P(21+ of 24)")
+a.plot(qq, stats.binom.sf(20, 24, qq), color=GOLD, lw=1.4, label="binomial, 21+ of 24")
 for qs in [0.7, 0.8, 0.85, 0.9, 0.95]:
     a.plot(qs, ((rng.random((20_000, 24)) < qs).sum(axis=1) >= 21).mean(), "o", color=INK,
-           ms=5)
-a.plot([], [], "o", color=INK, ms=5, label="20,000 simulated tests")
+           ms=3.2)
+a.plot([], [], "o", color=INK, ms=3.2, label="20,000 simulations")
 for h, c in [("touchscreen", RUST), ("voice", SAGE)]:
-    a.axvline(q[h], color=c, ls=":", lw=1.6)
-    a.text(q[h] - 0.005, 0.52, h, color=c, fontsize=8, rotation=90, ha="right")
+    a.axvline(q[h], color=c, ls=":", lw=1)
+    a.text(q[h] - 0.005, 0.52, h, color=c, fontsize=6.5, rotation=90, ha="right")
 a.set(xlabel="Share of all drivers who meet the 12-s criterion",
       ylabel="Probability the interface passes", title="(b) How often the test passes")
-a.legend(fontsize=8, frameon=False, loc="upper left")
+a.legend(fontsize=6, loc="upper left")
 a = ax[1, 0]                                                   # (c) relative validity
-a.scatter(e_sim * 1000, e_trk * 1000, s=46, color=SKY, edgecolor=INK, zorder=3)
+a.scatter(e_sim * 1000, e_trk * 1000, s=19.2, color=SKY, edgecolor=INK, zorder=3)
 lim = [0, 1000 * max(e_sim.max(), e_trk.max()) * 1.1]
-a.plot(lim, lim, color=INK, lw=0.8, ls=":", label="equal effects")
+a.plot(lim, lim, color=INK, lw=0.5, ls=":", label="equal effects")
 ratio = res.paired_diff_s[1] / res.paired_diff_s[0]
-a.plot(lim, np.array(lim) * ratio, color=RUST, lw=1.6,
+a.plot(lim, np.array(lim) * ratio, color=RUST, lw=1,
        label=f"mean ratio {res.paired_diff_s[1] / res.paired_diff_s[0]:.2f}")
 a.set(xlim=lim, ylim=lim, xlabel="Touchscreen slowing in the simulator (ms)",
       ylabel="Touchscreen slowing on the track (ms)",
       title=f"(c) Same drivers, two settings (r = {r:.2f})")
-a.legend(fontsize=8, frameon=False, loc="upper left")
+a.legend(fontsize=6.5, loc="upper left")
 a = ax[1, 1]                                                   # (d) power
 nn = np.arange(4, 41)
-a.plot(nn, [power_exact(n) for n in nn], color=SAGE, lw=2.2, label="noncentral t")
-a.plot(pw.drivers, pw.power_simulated, "o", color=INK, ms=5, label="simulation")
-a.axhline(0.8, color=INK, ls="--", lw=1)
-a.axvline(n80, color=RUST, ls=":", lw=1.6)
-a.text(n80 + 0.5, 0.3, f"{n80} drivers", color=RUST, fontsize=8)
+a.plot(nn, [power_exact(n) for n in nn], color=SAGE, lw=1.4, label="noncentral t")
+a.plot(pw.drivers, pw.power_simulated, "o", color=INK, ms=3.2, label="simulation")
+a.axhline(0.8, color=INK, ls="--", lw=0.6)
+a.axvline(n80, color=RUST, ls=":", lw=1)
+a.text(n80 + 0.5, 0.3, f"{n80} drivers", color=RUST, fontsize=6.5)
 a.set(ylim=(0, 1.02), xlabel="Drivers in the track study",
       ylabel="Power to detect 30 ms", title="(d) Sample size for the smallest effect")
-a.legend(fontsize=8, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap10_fig01_sim_field.png", dpi=200)
+a.legend(fontsize=6.5, loc="lower right")
+fig.tight_layout(); fig.savefig("chap10_fig01_sim_field.png", dpi=300)
