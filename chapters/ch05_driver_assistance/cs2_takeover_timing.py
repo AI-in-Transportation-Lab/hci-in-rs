@@ -131,48 +131,53 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 col = {"no secondary task": SAGE, "phone": GOLD, "reading": RUST}
 a = ax[0, 0]                                                   # (a) takeover times
 tt = np.linspace(0.01, 12, 400)
 for k, (med, sd, w) in TASKS.items():
-    a.plot(tt, stats.lognorm.pdf(tt, sd, scale=med), color=col[k], lw=2.2,
+    a.plot(tt, stats.lognorm.pdf(tt, sd, scale=med), color=col[k], lw=1.4,
            label=f"{k} (median {med:.1f} s)")
 a.set(xlabel="Takeover time (s)", ylabel="Density",
       title="(a) The secondary task sets the takeover time")
-a.legend(fontsize=8, frameon=False)
+a.legend(fontsize=6.5)
 a = ax[0, 1]                                                   # (b) coverage
 ll = np.linspace(2.5, 16, 300)
 for k in TASKS:
-    a.plot(ll, cdf_task(ll - MANEUVER, k), color=col[k], lw=1.6, ls="--")
-a.plot(ll, cdf_mix(ll - MANEUVER), color=INK, lw=2.6, label="all drivers")
-a.plot(cov.lead_time_s, cov.all_sim, "o", color=INK, ms=6, label="simulated")
+    a.plot(ll, cdf_task(ll - MANEUVER, k), color=col[k], lw=1, ls="--")
+a.plot(ll, cdf_mix(ll - MANEUVER), color=INK, lw=1.7, label="all drivers")
+a.plot(cov.lead_time_s, cov.all_sim, "o", color=INK, ms=3.9, label="simulated")
 for share, ls in [(0.95, ":"), (0.99, "-.")]:
-    a.axhline(share, color=INK, ls=ls, lw=0.9)
+    a.axhline(share, color=INK, ls=ls, lw=0.6)
 a.set(xlabel="Lead time of the takeover request (s)", ylabel="Share taking over in time",
       title="(b) What a lead time buys (dashed: by task)", ylim=(0, 1.02))
-a.legend(fontsize=8, frameon=False, loc="lower right")
+a.legend(fontsize=6.5, loc="lower right")
 a = ax[1, 0]                                                   # (c) crash risk
 for kmh, c in [(80, SAGE), (100, GOLD), (120, RUST), (130, INK)]:
-    a.semilogy(ll, [p_crash(x, kmh) for x in ll], color=c, lw=2, label=f"{kmh} km/h")
-a.semilogy(phys.assign(l=7.0).l, phys.P_crash_7s_sim, "o", color=INK, ms=5)
-a.axhline(0.01, color=INK, ls=":", lw=1)
-a.axvline(7.0, color=INK, ls="--", lw=0.9)
+    a.semilogy(ll, [p_crash(x, kmh) for x in ll], color=c, lw=1.3, label=f"{kmh} km/h")
+a.semilogy(phys.assign(l=7.0).l, phys.P_crash_7s_sim, "o", color=INK, ms=3.2)
+a.axhline(0.01, color=INK, ls=":", lw=0.6)
+a.axvline(7.0, color=INK, ls="--", lw=0.6)
 a.set(xlabel="Lead time of the takeover request (s)",
       ylabel="P(collision with a stopped vehicle)",
       title="(c) Seven seconds is not enough at speed", ylim=(1e-3, 1))
-a.legend(fontsize=8, frameon=False, loc="lower left")
+a.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
+a.legend(fontsize=6.5, loc="lower left", ncol=2)
 a = ax[1, 1]                                                   # (d) validation tests
 cc = np.linspace(0.90, 1.0, 300)
 for (n, c, lab, colr) in [(59, 0, "59 drivers, none late", GOLD),
                           (93, 1, "93 drivers, at most 1 late", OLIVE),
                           (n_p, c_p, f"{n_p} drivers, at most {c_p} late", SAGE)]:
-    a.plot(cc, stats.binom.cdf(c, n, 1 - cc), color=colr, lw=2.2, label=lab)
-a.axvline(0.95, color=RUST, ls=":", lw=1.2)
-a.axvline(0.98, color=SAGE, ls=":", lw=1.2)
+    a.plot(cc, stats.binom.cdf(c, n, 1 - cc), color=colr, lw=1.4, label=lab)
+a.axvline(0.95, color=RUST, ls=":", lw=0.8)
+a.axvline(0.98, color=SAGE, ls=":", lw=0.8)
 a.set(xlabel="True share of drivers taking over in time",
       ylabel="Probability the test passes",
       title="(d) A 95/95 test needs power, not only confidence")
-a.legend(fontsize=8, frameon=False, loc="upper left")
-fig.tight_layout(); fig.savefig("chap05_fig02_takeover.png", dpi=200)
+a.legend(fontsize=6, loc="center left")
+fig.tight_layout(); fig.savefig("chap05_fig02_takeover.png", dpi=300)

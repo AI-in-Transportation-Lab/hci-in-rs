@@ -158,8 +158,12 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 col = {"no monitoring": RUST, "hands-on-wheel": GOLD, "camera + escalation": SAGE}
 a = ax[0, 0]                                                   # (a) long glances
 x = np.arange(3)
@@ -167,37 +171,39 @@ a.bar(x - 0.2, tab.gt2s_per_h / 10, 0.38, color=SKY, edgecolor=INK, lw=0.5,
       label="over 2 s (tens per hour)")
 a.bar(x + 0.2, tab.gt4s_per_h, 0.38, color=RUST, edgecolor=INK, lw=0.5,
       label="over 4 s (per hour)")
-a.set_xticks(x, list(DRIFT), fontsize=8.5)
+a.set_xticks(x, [d.replace(" + ", " +\n") for d in DRIFT], fontsize=6.5)
 a.set(ylabel="Long glances away from the road",
-      title="(a) Hands on the wheel is not eyes on the road")
-a.legend(fontsize=8, frameon=False)
+      title="(a) Hands on the wheel is not eyes on the road", ylim=(0, 24))
+a.legend(fontsize=6.5)
 a = ax[0, 1]                                                   # (b) threshold trade-off
-a.plot(sweep.alerts_per_h, sweep.glances_gt4s_per_h, "-o", color=SAGE, mec=INK, lw=2, ms=7)
+a.plot(sweep.alerts_per_h, sweep.glances_gt4s_per_h, "-o", color=SAGE, mec=INK, lw=1.3, ms=4.5)
 for _, r in sweep.iterrows():
     a.annotate(f"{r.first_alert_s:.1f} s", (r.alerts_per_h, r.glances_gt4s_per_h),
-               textcoords="offset points", xytext=(6, 6), fontsize=8)
+               textcoords="offset points", xytext=(3.7, 3.7), fontsize=6.5)
 a.set_xscale("log")
+a.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
 a.set(xlabel="Alerts per hour (log scale)", ylabel="Glances over 4 s per hour",
-      title="(b) The first alert's threshold: nuisance against protection")
+      title="(b) Nuisance against protection")
 # (c) readiness at the hazard
 a = ax[1, 0]
 w = np.linspace(0, 4, 300)
 for s, r in res.items():
     rr = np.nan_to_num(r["resid"], nan=0.0)
-    a.plot(w, [(rr > v).mean() for v in w], color=col[s], lw=2.2, label=s)
+    a.plot(w, [(rr > v).mean() for v in w], color=col[s], lw=1.4, label=s)
 a.set(xlabel="Seconds until the eyes return to the road",
       ylabel="Share of drivers still looking away",
       title="(c) When the hazard appears", ylim=(0, 0.42))
-a.legend(fontsize=8, frameon=False)
+a.legend(fontsize=6.5)
 a = ax[1, 1]                                                   # (d) false alerts
 a.semilogy(fa.k, np.maximum(fa.indep_per_h, 1e-4), "-o", color=GOLD,
-           mec=INK, lw=2, label="independent frame errors")
-a.semilogy(fa.k, fa.bursty_per_h, "-o", color=RUST, mec=INK, lw=2,
-           label="errors in bursts (closed form)")
-a.semilogy(fa.k, fa.bursty_sim, "x", color=INK, ms=9, mew=2,
+           mec=INK, lw=1.3, label="independent errors")
+a.semilogy(fa.k, fa.bursty_per_h, "-o", color=RUST, mec=INK, lw=1.3,
+           label="bursty errors (closed form)")
+a.semilogy(fa.k, fa.bursty_sim, "x", color=INK, ms=5.8, mew=1.3,
            label="bursts, simulated")
 a.set(xlabel="Flagged frames in a row before alerting (2 per second)",
       ylabel="False alerts per hour, attentive driver",
       title="(d) Correlated errors defeat the filter")
-a.legend(fontsize=8, frameon=False, loc="lower left")
-fig.tight_layout(); fig.savefig("chap05_fig01_monitoring.png", dpi=200)
+a.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
+a.legend(fontsize=6, loc="center right", bbox_to_anchor=(1, 0.6))
+fig.tight_layout(); fig.savefig("chap05_fig01_monitoring.png", dpi=300)
