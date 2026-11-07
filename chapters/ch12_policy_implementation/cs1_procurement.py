@@ -125,8 +125,12 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 col = {"A": SAGE, "B": GOLD, "C": RUST}
 x = np.arange(3)
 PANELS = [("det", "det_lo", REQ["det"], "Detection rate"),
@@ -135,14 +139,14 @@ for k, (metric, lo, req, lab) in enumerate(PANELS):
     # (a), (b) evidence vs. requirement
     a = ax[0, k]
     for i, r in ev.iterrows():
-        a.plot([i, i], sorted([r[metric], r[lo]]), color=col[r.bid], lw=5, alpha=0.6,
+        a.plot([i, i], sorted([r[metric], r[lo]]), color=col[r.bid], lw=3.2, alpha=0.6,
                solid_capstyle="round")
-        a.plot(i, r[metric], "o", color=col[r.bid], mec=INK, ms=8)
-        a.plot(i, r[lo], "_", color=INK, ms=18, mew=2)
-    a.axhline(req, color=INK, ls="--", lw=1.2)
+        a.plot(i, r[metric], "o", color=col[r.bid], mec=INK, ms=5.2)
+        a.plot(i, r[lo], "_", color=INK, ms=11.6, mew=1.3)
+    a.axhline(req, color=INK, ls="--", lw=0.8)
     a.set_xticks(x, [f"bid {v}" for v in BIDS])
-    a.set(ylabel=lab, title=f"({'ab'[k]}) {lab}: estimate (dot) and 95% bound (bar)")
-    a.text(-0.35, req, "requirement", fontsize=7.8, va="bottom", ha="left")
+    a.set(ylabel=lab, title=f"({'ab'[k]}) {lab}: estimate and bound")
+    a.text(-0.35, req, "requirement", fontsize=6.5, va="bottom", ha="left")
     a.set_xlim(-0.4, 2.4)
 ax[0, 0].set_ylim(0.8, 0.97)
 ax[0, 1].set_ylim(0.2, 1.1)
@@ -150,22 +154,22 @@ ax[0, 1].set_ylim(0.2, 1.1)
 a = ax[1, 0]
 bins = np.linspace(1100, 2300, 120)
 for v in BIDS:
-    a.hist(draws[v], bins, density=True, histtype="step", lw=2, color=col[v],
-           label=f"bid {v}: mean ${draws[v].mean():,.0f}, P(best) {best.get(v, 0):.2f}")
+    a.hist(draws[v], bins, density=True, histtype="step", lw=1.3, color=col[v],
+           label=f"{v}: ${draws[v].mean():,.0f}, P(best) {best.get(v, 0):.2f}")
 a.set(xlabel="Net value per vehicle-year ($)", ylabel="Posterior density",
-      title="(c) Value of each bid, with its uncertainty")
-a.legend(fontsize=8, frameon=False, loc="upper left")
+      title="(c) Value of each bid, with its uncertainty", ylim=(0, 0.0092))
+a.legend(fontsize=6.5, loc="upper right")
 a = ax[1, 1]                                                   # (d) acceptance plan
 pp = np.linspace(0.80, 0.97, 300)
-a.plot(pp, stats.binom.sf(c_ex - 1, n_ex, pp), color=SAGE, lw=2.4,
-       label=f"accept if at least {c_ex} of {n_ex} detected")
-a.axvline(P_BAD, color=RUST, ls=":", lw=1.4)
-a.axvline(P_CLAIM, color=SAGE, ls=":", lw=1.4)
+a.plot(pp, stats.binom.sf(c_ex - 1, n_ex, pp), color=SAGE, lw=1.6)
+a.axvline(P_BAD, color=RUST, ls=":", lw=0.9)
+a.axvline(P_CLAIM, color=SAGE, ls=":", lw=0.9)
 a.plot([P_BAD, P_CLAIM], [stats.binom.sf(c_ex - 1, n_ex, P_BAD),
-                          stats.binom.sf(c_ex - 1, n_ex, P_CLAIM)], "o", color=INK, ms=7)
-a.text(P_BAD - 0.003, 0.5, "requirement\n0.85", fontsize=7.8, color=RUST, ha="right")
-a.text(P_CLAIM + 0.003, 0.5, "claim\n0.92", fontsize=7.8, color=SAGE)
+                          stats.binom.sf(c_ex - 1, n_ex, P_CLAIM)], "o", color=INK, ms=4.5)
+a.text(P_BAD - 0.003, 0.5, "requirement\n0.85", fontsize=6.5, color=RUST, ha="right")
+a.text(P_CLAIM + 0.003, 0.5, "claim\n0.92", fontsize=6.5, color=SAGE)
 a.set(xlabel="True detection rate of the delivered system",
       ylabel="Probability of acceptance", title="(d) The contract's acceptance test")
-a.legend(fontsize=8, frameon=False, loc="upper left")
-fig.tight_layout(); fig.savefig("chap12_fig01_procurement.png", dpi=200)
+a.text(P_BAD - 0.003, 0.97, f"accept if \u2265 {c_ex}\nof {n_ex} detected", fontsize=6.5,
+       va="top", ha="right")
+fig.tight_layout(); fig.savefig("chap12_fig01_procurement.png", dpi=300)

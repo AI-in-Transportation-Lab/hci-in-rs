@@ -147,44 +147,46 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 a = ax[0, 0]                                                   # (a) posterior by phase
 rr = np.linspace(0.3, 1.8, 400)
-a.plot(rr, stats.gamma.pdf(rr, A0, scale=1 / B0), color=INK, lw=1.4, ls=":", label="prior")
+a.plot(rr, stats.gamma.pdf(rr, A0, scale=1 / B0), color=INK, lw=0.9, ls=":", label="prior")
 aa, bb = A0, B0
 for (_, r), c in zip(log.iterrows(), [GOLD, SAGE]):
     aa, bb = aa + r.observed, bb + r.expected
-    a.plot(rr, stats.gamma.pdf(rr, aa, scale=1 / bb), color=c, lw=2.2,
-           label=f"after {r.phase}: P(RR < 1) = {r.P_benefit:.3f}")
-a.axvline(1, color=RUST, ls="--", lw=1)
-a.axvline(RR_TRUE, color=INK, lw=0.8)
-a.set_ylim(0, a.get_ylim()[1] * 1.12)
-a.text(RR_TRUE + 0.015, a.get_ylim()[1] * 0.97, "true 0.85", fontsize=7.8, va="top")
+    a.plot(rr, stats.gamma.pdf(rr, aa, scale=1 / bb), color=c, lw=1.4,
+           label=f"{r.phase}: P(RR < 1) = {r.P_benefit:.3f}")
+a.axvline(1, color=RUST, ls="--", lw=0.6)
+a.axvline(RR_TRUE, color=INK, lw=0.5, label=f"true ratio {RR_TRUE}")
 a.set(xlabel="Crash rate ratio with the program", ylabel="Posterior density",
       title="(a) Evidence accumulates across phases")
-a.legend(fontsize=8, frameon=False, loc="upper right")
+a.legend(fontsize=6, loc="center right", bbox_to_anchor=(1, 0.62), handlelength=1.5)
 a = ax[0, 1]                                                   # (b) gate characteristics
-a.plot(oc.true_RR, oc.P_full_deployment, "-o", color=SAGE, mec=INK, lw=2.2, ms=6,
+a.plot(oc.true_RR, oc.P_full_deployment, "-o", color=SAGE, mec=INK, lw=1.4, ms=3.9,
        label="reaches full deployment")
-a.plot(oc.true_RR, oc.P_go_at_pilot_closed, "--", color=GOLD, lw=1.8,
-       label="advances at the first pilot look (closed form)")
-a.plot(oc.true_RR, oc.P_go_at_pilot_sim, "o", color=GOLD, mec=INK, ms=5,
+a.plot(oc.true_RR, oc.P_go_at_pilot_closed, "--", color=GOLD, lw=1.2,
+       label="advances at pilot (closed form)")
+a.plot(oc.true_RR, oc.P_go_at_pilot_sim, "o", color=GOLD, mec=INK, ms=3.2,
        label="same, simulated")
-a.axvline(1, color=RUST, ls="--", lw=1)
+a.axvline(1, ymax=0.6, color=RUST, ls="--", lw=0.6)
 a.set(xlabel="True crash rate ratio", ylabel="Probability",
-      title="(b) Gates rarely approve a program that does not work")
-a.legend(fontsize=8, frameon=False, loc="upper right")
+      title="(b) Gates rarely approve failures")
+a.legend(fontsize=6.5, loc="upper right")
 a = ax[1, 0]                                                   # (c) efficacy to impact
 labs = ["efficacy", "x adoption", "x reach", "x fidelity", "x maintenance"]
 vals, lvl = [], 1.0
 for _, f in steps:
     lvl *= f
     vals.append(lvl)
-a.bar(range(5), vals, color=[RUST, GOLD, OLIVE, SAGE, SKY], edgecolor=INK, lw=0.6)
+a.bar(range(5), vals, color=[RUST, GOLD, OLIVE, SAGE, SKY], edgecolor=INK, lw=0.5)
 for i, v in enumerate(vals):
-    a.text(i, v + 0.005, f"{v:.3f}", ha="center", fontsize=8)
-a.set_xticks(range(5), labs, fontsize=8)
+    a.text(i, v + 0.005, f"{v:.3f}", ha="center", fontsize=6.5)
+a.set_xticks(range(5), labs, fontsize=6.5, rotation=25, ha="right")
 a.set(ylabel="Crash reduction in the population", ylim=(0, 0.29),
       title="(c) From 25% efficacy to 6.3% impact (RE-AIM)")
 a = ax[1, 1]                                                   # (d) CUSUM surveillance
@@ -194,14 +196,15 @@ a2.bar(months[show], counts[show], color=GRID, width=0.8, zorder=0)
 a2.set_ylabel("Incidents per month", color=INK)
 a2.spines["right"].set_visible(True)
 a.set_zorder(a2.get_zorder() + 1); a.patch.set_visible(False)
-a.plot(months[show], path[show], color=RUST, lw=2, label="CUSUM statistic")
-a.axhline(H, color=INK, ls="--", lw=1.2, label=f"decision interval H = {H}")
-a.axvline(60.5, color=SAGE, ls=":", lw=1.6, label="regression after month 60")
+a.plot(months[show], path[show], color=RUST, lw=1.3, label="CUSUM statistic")
+a.axhline(H, color=INK, ls="--", lw=0.8, label=f"decision interval H = {H}")
+a.axvline(60.5, color=SAGE, ls=":", lw=1, label="regression after month 60")
 if signal:
-    a.plot(signal, path[signal - 1], "o", color=INK, ms=7)
-    a.text(signal + 2, path[signal - 1], f"signal, month {signal}", fontsize=8,
+    a.plot(signal, path[signal - 1], "o", color=INK, ms=4.5)
+    a.text(signal + 2, path[signal - 1], f"signal, month {signal}", fontsize=6.5,
            bbox=dict(fc=PAPER, ec="none", pad=1))
-a.set(xlabel="Month after deployment", ylabel="CUSUM statistic", ylim=(-1, max(3.2 * H, 1.08 * path[show].max())),
+a.set(xlabel="Month after deployment", ylabel="CUSUM statistic",
+      ylim=(-1, max(3.2 * H, 1.08 * path[show].max())),
       title="(d) Surveillance catches a bad update")
-a.legend(fontsize=7.5, frameon=False, loc="upper left")
-fig.tight_layout(); fig.savefig("chap12_fig02_implementation.png", dpi=200)
+a.legend(fontsize=6, loc="upper left")
+fig.tight_layout(); fig.savefig("chap12_fig02_implementation.png", dpi=300)
