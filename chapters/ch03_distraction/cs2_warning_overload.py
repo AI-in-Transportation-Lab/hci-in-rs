@@ -189,40 +189,44 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 4))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.2, 2.7))
 lab = ["as built", "retuned\nthresholds", "retuned +\narbitration"]
 x = np.arange(3)
 
 bars = a1.bar(x, [r["warn_h"] for r in res], 0.46, color=GOLD, edgecolor=INK, lw=0.5,
               label="warnings per hour (left)")             # (a) fewer, better warnings
-a1.bar_label(bars, fmt="%.2f", fontsize=8, padding=2)
+a1.bar_label(bars, fmt="%.2f", fontsize=6.5, padding=1.6)
 a1b = a1.twinx()
-l1, = a1b.plot(x, [r["ppv"] for r in res], "o-", color=RUST, mec=INK, lw=2, ms=8,
+l1, = a1b.plot(x, [r["ppv"] for r in res], "o-", color=RUST, mec=INK, lw=1.6, ms=6.2,
                label="pooled predictive value (right)")
-l2, = a1b.plot(x, [r["comply"] for r in res], "s--", color=SAGE, mec=INK, lw=2,
-               ms=7, label="compliance (right)")
+l2, = a1b.plot(x, [r["comply"] for r in res], "s--", color=SAGE, mec=INK, lw=1.6,
+               ms=5.4, label="compliance (right)")
 for xi, r in enumerate(res):
-    a1b.annotate(f"{r['ppv']:.2f}", (xi, r["ppv"]), xytext=(0, -15),
-                 textcoords="offset points", ha="center", fontsize=8, color=RUST,
+    a1b.annotate(f"{r['ppv']:.2f}", (xi, r["ppv"]), xytext=(0, -11.2),
+                 textcoords="offset points", ha="center", fontsize=6.5, color=RUST,
                  bbox=dict(fc=PAPER, ec="none", pad=0.6))
-    a1b.annotate(f"{r['comply']:.2f}", (xi, r["comply"]), xytext=(0, 9),
-                 textcoords="offset points", ha="center", fontsize=8, color=SAGE,
+    a1b.annotate(f"{r['comply']:.2f}", (xi, r["comply"]), xytext=(0, 6.7),
+                 textcoords="offset points", ha="center", fontsize=6.5, color=SAGE,
                  bbox=dict(fc=PAPER, ec="none", pad=0.6))
-a1.set_xticks(x, lab, fontsize=9)
+a1.set_xticks(x, lab, fontsize=7)
 a1.set(ylabel="Warnings presented per hour", ylim=(0, 6.6),
        title="(a) Fewer warnings, each worth more")
 a1b.set(ylabel="Predictive value / compliance", ylim=(0, 1.0))
 a1b.spines["right"].set_visible(True); a1b.grid(False)
-a1.legend(handles=[bars, l1, l2], fontsize=8, frameon=False, loc="upper right")
+a1.legend(handles=[bars, l1, l2], fontsize=6.5, loc="upper right")
 
 rate = [100 * r["handled"] / r["conflicts"] for r in res]      # (b) conflicts handled
 bars = a2.bar(x, rate, 0.5, color=[RUST, GOLD, SAGE], edgecolor=INK, lw=0.5)
-a2.bar_label(bars, fmt="%.1f%%", fontsize=8, padding=3)
-a2.set_xticks(x, lab, fontsize=9)
+a2.bar_label(bars, fmt="%.1f%%", fontsize=6.5, padding=2.3)
+a2.set_xticks(x, lab, fontsize=7)
 a2.set(ylabel="Genuine conflicts braked for in time (%)", ylim=(0, max(rate) * 1.25),
        title="(b) The outcome an alert count cannot see")
 
 fig.tight_layout()
-fig.savefig("fig03_07_cs2_alerts.png", dpi=200)
+fig.savefig("fig03_07_cs2_alerts.png", dpi=300)
 print("\n   figure written to fig03_07_cs2_alerts.png")

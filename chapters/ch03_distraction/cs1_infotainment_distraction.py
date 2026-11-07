@@ -154,8 +154,12 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 4))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.2, 2.7))
 
 x = np.arange(len(NAMES))                                      # (a) two pathways
 vis = [float((df[df.design == n]["teort"] *
@@ -166,24 +170,24 @@ a1.bar(x, vis, 0.56, color=SAGE, edgecolor=INK, lw=0.5, label="visual component"
 a1.bar(x, cog, 0.56, bottom=vis, color=GOLD, edgecolor=INK, lw=0.5,
        label="cognitive component")
 for xi, (v, c) in enumerate(zip(vis, cog)):
-    a1.text(xi, v + c + 0.12, f"{v + c:.2f} s", ha="center", fontsize=8)
-a1.set_xticks(x, [n.replace(", ", ",\n") for n in NAMES], fontsize=9)
+    a1.text(xi, v + c + 0.12, f"{v + c:.2f} s", ha="center", fontsize=6.5)
+a1.set_xticks(x, [n.replace(", ", ",\n") for n in NAMES], fontsize=7)
 a1.set(ylabel="Exposure-weighted delay (delay-seconds)",
        ylim=(0, max(np.array(vis) + np.array(cog)) * 1.22),
        title="(a) The two pathways, on one scale")
-a1.legend(fontsize=8, frameon=False, loc="upper right")
+a1.legend(fontsize=6.5, loc="upper right")
 
 rks = {"glance": rk_vm, "DRT": rk_drt, "delay-s": rk_tot, "liking": rk_pref}
 for n, c in zip(NAMES, [RUST, GOLD, SAGE, SKY]):               # (b) rank by measure
-    a2.plot(range(len(rks)), [rks[k].index(n) + 1 for k in rks], "o-", lw=2.2,
-            ms=8, color=c, mec=INK, label=n)
+    a2.plot(range(len(rks)), [rks[k].index(n) + 1 for k in rks], "o-", lw=1.7,
+            ms=6.2, color=c, mec=INK, label=n)
 a2.set_xticks(range(len(rks)), list(rks))
 a2.set_yticks([1, 2, 3, 4], ["best", "2nd", "3rd", "worst"])
 a2.set_ylim(5.5, 0.6)
 a2.set(xlabel="Measure used to rank the designs",
        title="(b) The question asked decides the winner")
-a2.legend(fontsize=8, frameon=False, loc="lower center", ncol=2)
+a2.legend(fontsize=6.5, loc="lower center", ncol=2)
 
 fig.tight_layout()
-fig.savefig("fig03_06_cs1_interfaces.png", dpi=200)
+fig.savefig("fig03_06_cs1_interfaces.png", dpi=300)
 print("\n   figure written to fig03_06_cs1_interfaces.png")
