@@ -1,0 +1,38 @@
+title: HCI in Roadway Safety
+description: Companion code for the book Human-Computer Interaction in Roadway Safety
+url: https://ai-in-transportation-lab.github.io
+baseurl: /hci-in-rs
+repository: AI-in-Transportation-Lab/hci-in-rs
+
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+enable_copy_code_button: true
+back_to_top: true
+back_to_top_text: "Back to top"
+
+aux_links:
+  "View on GitHub": https://github.com/AI-in-Transportation-Lab/hci-in-rs
+aux_links_new_tab: true
+
+footer_content: "Companion code for <em>Human-Computer Interaction in Roadway Safety: Principles, Methods, and Applications</em> by Subasish Das."
+
+# Keep non-site files out of the build. The .py scripts are NOT excluded:
+# chapter pages embed them with include_relative and link to the raw files.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - Makefile
+  - pyproject.toml
+  - requirements.txt
+  - uv.lock
+  - scripts/
+  - outputs/
+  - vendor/
+  - .venv/
+  - node_modules/
