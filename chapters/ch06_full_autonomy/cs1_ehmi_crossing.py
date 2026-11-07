@@ -136,26 +136,30 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
 col = {"K": SAGE, "R": GOLD, "F": RUST}
-fig, ax = plt.subplots(2, 2, figsize=(10.5, 7.2))
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 for g in GROUPS:                                       # (a) learning curve, 5-trial window
     m = yt[yt.group == g].groupby("trial").cit.mean().rolling(5, center=True,
                                                               min_periods=3).mean()
-    ax[0, 0].plot(m.index, m.values, color=col[g], lw=2, label=GROUPS[g])
+    ax[0, 0].plot(m.index, m.values, color=col[g], lw=1.5, label=GROUPS[g])
 for g in ["R", "F"]:                                   # (b) trust ratings after each trial
     m = df[df.group == g].groupby("trial").trust.mean()
-    ax[0, 1].plot(m.index, m.values, "o-", ms=3, color=col[g], lw=1.4, label=GROUPS[g])
+    ax[0, 1].plot(m.index, m.values, "o-", ms=2.5, color=col[g], lw=1, label=GROUPS[g])
 for a in ax[0]:
     for f in FAULTS:
-        a.axvline(f, color=RUST, ls=":", lw=1.2)
-ax[0, 0].set(xlabel="Trial", ylabel="Crossing initiation time (s)", ylim=(0.6, 2.1),
+        a.axvline(f, color=RUST, ls=":", lw=0.9)
+ax[0, 0].set(xlabel="Trial", ylabel="Crossing initiation time (s)", ylim=(0.4, 2.1),
              title="(a) Yielding trials: time to start crossing")
 ax[0, 1].set(xlabel="Trial", ylabel="Mean trust rating (1-7)", ylim=(1, 7),
              title="(b) Self-reported trust in the eHMI")
-ax[0, 0].legend(fontsize=8, frameon=False, loc="lower left")
-ax[0, 1].legend(fontsize=8, frameon=False, loc="lower right")
-ax[0, 1].text(FAULTS[0] + 0.5, 6.6, "faults", color=RUST, fontsize=8)
+ax[0, 0].legend(fontsize=6.5, loc="lower left")
+ax[0, 1].legend(fontsize=6.5, loc="lower left")
+ax[0, 1].text(FAULTS[0] + 0.5, 6.6, "faults", color=RUST, fontsize=6.5)
 xs = np.arange(3)                                      # (c) false starts by trial type
 for j, pos in enumerate(["other", "fault"]):
     vals, errs = [], []
@@ -168,19 +172,19 @@ for j, pos in enumerate(["other", "fault"]):
                  color=[SKY, RUST][j], label=["other non-yielding trials",
                                               "fault positions (trials 24, 33)"][j])
 ax[1, 0].set_xticks(xs, [GROUPS[g].replace(" with ", "\nwith ") for g in GROUPS],
-                    fontsize=8)
+                    fontsize=6.5)
 ax[1, 0].set(ylabel="Share of trials with a false start", ylim=(0, 0.85),
              title="(c) Starting to cross before a non-yielding vehicle")
-ax[1, 0].legend(fontsize=8, frameon=False, loc="upper left")
+ax[1, 0].legend(fontsize=6.5, loc="upper left")
 # (d) ROC space, isosensitivity curves
 fgrid = np.linspace(0.001, 0.999, 300)
 for g in GROUPS:
     d, c = summary.loc[g, ("dprime", "mean")], summary.loc[g, ("c", "mean")]
-    ax[1, 1].plot(fgrid, norm.cdf(d + norm.ppf(fgrid)), color=col[g], lw=1.2, alpha=0.8)
-    ax[1, 1].plot(norm.cdf(-d / 2 - c), norm.cdf(d / 2 - c), "o", ms=8, color=col[g],
+    ax[1, 1].plot(fgrid, norm.cdf(d + norm.ppf(fgrid)), color=col[g], lw=0.9, alpha=0.8)
+    ax[1, 1].plot(norm.cdf(-d / 2 - c), norm.cdf(d / 2 - c), "o", ms=5.9, color=col[g],
                   mec=INK, label=f"{GROUPS[g]} (d' = {d:.2f}, c = {c:+.2f})")
-ax[1, 1].plot([0, 1], [0, 1], "--", color=OLIVE, lw=1)
+ax[1, 1].plot([0, 1], [0, 1], "--", color=OLIVE, lw=0.7)
 ax[1, 1].set(xlim=(0, 0.5), ylim=(0.5, 1.0), xlabel="False-alarm rate F",
              ylabel="Hit rate H", title="(d) Discrimination of yielding intent")
-ax[1, 1].legend(fontsize=8, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap06_fig01_ehmi_crossing.png", dpi=200)
+ax[1, 1].legend(fontsize=6.5, loc="lower right")
+fig.tight_layout(); fig.savefig("chap06_fig01_ehmi_crossing.png", dpi=300)

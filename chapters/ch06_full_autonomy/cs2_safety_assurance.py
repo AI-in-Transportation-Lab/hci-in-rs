@@ -163,8 +163,12 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig = plt.figure(figsize=(11, 8.4))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig = plt.figure(figsize=(6.2, 5.2))
 gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.05], hspace=0.42, wspace=0.28)
 ax1, ax2 = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
 ax3 = fig.add_subplot(gs[1, :])
@@ -175,29 +179,29 @@ vals = list(od.rr) + [crude, sir, dsr, exp_rr]
 y = np.arange(len(labels))[::-1]
 for i, (v, yy) in enumerate(zip(vals, y)):                  # (a) forest plot
     if i < 4:
-        ax1.plot([od.rr_lo[i], od.rr_hi[i]], [yy, yy], color=SAGE, lw=2)
-        ax1.plot(v, yy, "o", color=GOLD, mec=INK, ms=7)
+        ax1.plot([od.rr_lo[i], od.rr_hi[i]], [yy, yy], color=SAGE, lw=1.4)
+        ax1.plot(v, yy, "o", color=GOLD, mec=INK, ms=4.9)
     else:
         if i == 5:
-            ax1.plot([s_lo, s_hi], [yy, yy], color=RUST, lw=2)
-        ax1.plot(v, yy, "D", color=RUST, mec=INK, ms=7)
-ax1.axvline(1, color=OLIVE, ls="--", lw=1.2)
-ax1.set_yticks(y, labels, fontsize=8)
+            ax1.plot([s_lo, s_hi], [yy, yy], color=RUST, lw=1.4)
+        ax1.plot(v, yy, "D", color=RUST, mec=INK, ms=4.9)
+ax1.axvline(1, color=OLIVE, ls="--", lw=0.8)
+ax1.set_yticks(y, labels, fontsize=6.5)
 ax1.set(xlabel="Fleet / human injury-crash rate ratio (95% CI)", xlim=(0, 2.5),
         title="(a) Same record, four comparisons")
 
 for (label, a0), P in paths.items():                        # (b) monitoring paths
-    ax2.plot(np.arange(1, MONTHS + 1), P, "-" if a0 < 1 else "--", lw=1.8,
+    ax2.plot(np.arange(1, MONTHS + 1), P, "-" if a0 < 1 else "--", lw=1.3,
              color=SAGE if label.startswith("A") else RUST,
              label=f"{label.split(':')[0]}, a0 = {a0:.1f}")
-ax2.axhline(DEMO, color=GOLD, lw=1.2); ax2.axhline(1 - HOLD, color=INK, lw=1, ls=":")
-ax2.text(18, DEMO - 0.05, "declare (after month 6)", fontsize=8, color=INK, ha="right")
-ax2.text(1, 1 - HOLD + 0.02, "hold", fontsize=8, color=INK)
-ax2.text(9.5, 1.04, "a0 = 1.0: A and B look alike", fontsize=8, color=RUST, ha="center")
+ax2.axhline(DEMO, color=GOLD, lw=0.8); ax2.axhline(1 - HOLD, color=INK, lw=0.7, ls=":")
+ax2.text(18, DEMO - 0.05, "declare (after month 6)", fontsize=6.5, color=INK, ha="right")
+ax2.text(4.2, 1 - HOLD + 0.02, "hold", fontsize=6.5, color=INK)
+ax2.text(9.5, 1.04, "a0 = 1.0: A and B look alike", fontsize=6.5, color=RUST, ha="center")
 ax2.set(xlabel="Months after release", ylabel="P(fleet rate < benchmark)", ylim=(0, 1.12),
         xticks=[1, 3, 6, 9, 12, 15, 18],
         title="(b) Posterior monitoring in the expansion area")
-ax2.legend(fontsize=8, frameon=False, loc="lower left")
+ax2.legend(fontsize=6.5, loc="upper right", bbox_to_anchor=(1, 0.77), ncol=2)
 
 inter, ctx = list(INTER), list(CTX)                         # (c) coverage heatmap
 ratio = np.array([[cv[(cv.inter == i) & (cv.ctx == c)].ub.iloc[0] /
@@ -209,12 +213,12 @@ for r, c in enumerate(ctx):
     for k, i in enumerate(inter):
         s = cv[(cv.inter == i) & (cv.ctx == c)].iloc[0]
         ax3.text(k, r, f"n={s.n}\nf={s.fails}" + ("" if s["pass"] else "\nGAP"),
-                 ha="center", va="center", fontsize=7, color=INK,
+                 ha="center", va="center", fontsize=6, color=INK,
                  fontweight="normal" if s["pass"] else "bold")
-ax3.set_xticks(range(len(inter)), [textwrap.fill(i, 13) for i in inter], fontsize=8)
-ax3.set_yticks(range(len(ctx)), ctx, fontsize=8)
+ax3.set_xticks(range(len(inter)), [textwrap.fill(i, 11) for i in inter], fontsize=6)
+ax3.set_yticks(range(len(ctx)), ctx, fontsize=6.5)
 ax3.grid(False)
 ax3.set_title("(c) Scenario coverage: upper failure bound / tolerable rate (GAP if > 1)")
 cb = fig.colorbar(im, ax=ax3, fraction=0.025, pad=0.01)
-cb.set_label("Bound / tolerable rate", fontsize=8)
-fig.savefig("chap06_fig02_safety_assurance.png", dpi=200, bbox_inches="tight")
+cb.set_label("Bound / tolerable rate", fontsize=6.5)
+fig.savefig("chap06_fig02_safety_assurance.png", dpi=300, bbox_inches="tight")
