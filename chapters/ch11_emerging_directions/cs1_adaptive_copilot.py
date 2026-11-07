@@ -151,51 +151,56 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 a = ax[0, 0]                                                   # (a) ROC
 fpr = np.linspace(0, 1, 400)
 for name, col in [("one threshold", RUST), ("personal baseline", SAGE)]:
     sd = np.sqrt(V[name])
     tpr = stats.norm.sf(stats.norm.isf(np.clip(fpr, 1e-9, 1)) - DELTA / sd)
     a.plot(fpr, tpr, color=col,
-           lw=2.2, label=f"{name}: AUC {stats.norm.cdf(DELTA / np.sqrt(2 * V[name])):.3f}")
+           lw=1.4, label=f"{name}: AUC {stats.norm.cdf(DELTA / np.sqrt(2 * V[name])):.3f}")
     al, dr = score[name]
     idx = rng.choice(al.size, 20_000, replace=False)       # windows from all drivers
     f_, t_, _ = roc_curve(np.r_[np.zeros(20_000), np.ones(20_000)],
                           np.r_[al.ravel()[idx], dr.ravel()[idx]])
     keep = np.searchsorted(f_, np.linspace(0.005, 0.95, 28))
-    a.plot(f_[keep], t_[keep], "o", color=col, mec=INK, ms=3.5)
-a.plot([0, 1], [0, 1], color=INK, lw=0.8, ls=":")
+    a.plot(f_[keep], t_[keep], "o", color=col, mec=INK, ms=2.5)
+a.plot([0, 1], [0, 1], color=INK, lw=0.5, ls=":")
 a.set(xlabel="False-alarm rate per alert window", ylabel="Drowsy windows detected",
       title="(a) Personal baselines sharpen detection")
-a.legend(fontsize=8, frameon=False, loc="lower right")
+a.legend(fontsize=6.5, loc="lower right")
 a = ax[0, 1]                                                   # (b) who gets the alarms
 bins = np.linspace(0, 12, 49)
 a.hist(fa_g, bins, color=RUST, alpha=0.75, label="one threshold")
 a.hist(fa_p, bins, color=SAGE, alpha=0.75, label="personal baseline")
-a.axvline(2, color=INK, ls="--", lw=1)
+a.axvline(2, color=INK, ls="--", lw=0.6)
 a.set_yscale("log")
-a.set(xlabel="False alarms per hour for each driver (at 80% detection)",
+a.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
+a.set(xlabel="False alarms per hour per driver (80% detection)",
       ylabel="Drivers", title="(b) One threshold floods some drivers")
-a.legend(fontsize=8, frameon=False, loc="upper right")
+a.legend(fontsize=6.5, loc="upper right")
 a = ax[1, 0]                                                   # (c) utility of each action
 pp = np.linspace(0, 0.4, 400)
-a.plot(pp, 0 * pp, color=INK, lw=1.6, label="do nothing")
-a.plot(pp, pp * b - (1 - pp) * c, color=GOLD, lw=2.2, label="ask")
-a.plot(pp, pp * B - (1 - pp) * C, color=RUST, lw=2.2, label="act")
+a.plot(pp, 0 * pp, color=INK, lw=1, label="do nothing")
+a.plot(pp, pp * b - (1 - pp) * c, color=GOLD, lw=1.4, label="ask")
+a.plot(pp, pp * B - (1 - pp) * C, color=RUST, lw=1.4, label="act")
 for p_, lab in [(p_ask, "ask"), (p_act, "act")]:
-    a.axvline(p_, color=INK, ls=":", lw=1)
-    a.text(p_ + 0.004, 2.6, f"{lab} above\n{p_:.3f}", fontsize=7.6)
-a.set(ylim=(-1.2, 3.2), xlabel="Probability the driver is drowsy",
+    a.axvline(p_, color=INK, ls=":", lw=0.6)
+    a.text(p_ + 0.004, 2.6, f"{lab} above\n{p_:.3f}", fontsize=6.5)
+a.set(ylim=(-1.7, 3.2), xlabel="Probability the driver is drowsy",
       ylabel="Expected utility of the action", title="(c) When to ask and when to act")
-a.legend(fontsize=8, frameon=False, loc="lower right")
+a.legend(fontsize=6.5, loc="lower right")
 a = ax[1, 1]                                                   # (d) learning a modality
 tt = np.arange(1, T + 1)
-a.plot(tt, got.mean(axis=0), color=SAGE, lw=2, label="Thompson sampling")
-a.axhline(AH / (AH + BH), color=RUST, ls="--", lw=1.6, label="haptic for everyone")
-a.axhline(e_max(), color=INK, ls=":", lw=1.6, label="each driver's best")
+a.plot(tt, got.mean(axis=0), color=SAGE, lw=1.3, label="Thompson sampling")
+a.axhline(AH / (AH + BH), color=RUST, ls="--", lw=1, label="haptic for everyone")
+a.axhline(e_max(), color=INK, ls=":", lw=1, label="each driver's best")
 a.set(ylim=(0.6, 0.8), xlabel="Alert number", ylabel="Share of alerts complied with",
       title="(d) Learning each driver's best alert")
-a.legend(fontsize=8, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap11_fig01_copilot.png", dpi=200)
+a.legend(fontsize=6.5, loc="lower right")
+fig.tight_layout(); fig.savefig("chap11_fig01_copilot.png", dpi=300)

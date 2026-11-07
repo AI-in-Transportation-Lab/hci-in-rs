@@ -137,55 +137,59 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(12, 8.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 a = ax[0, 0]                                                   # (a) two estimands
 for k, (lab, col) in enumerate([("intention to treat", SAGE), ("per protocol", GOLD)]):
     r = res[res.analysis == lab]
     x = np.arange(2) + (k - 0.5) * 0.3
     a.errorbar(x, r.effect, yerr=[r.effect - r.lo, r.hi - r.effect], fmt="o", color=col,
-               mec=INK, ms=7, capsize=3, ecolor=INK, label=lab)
-    a.plot(x, r.true_value, "_", color=RUST, ms=22, mew=2.4)
-a.plot([], [], "_", color=RUST, ms=14, mew=2.4, label="true value")
+               mec=INK, ms=4.5, capsize=1.9, ecolor=INK, label=lab)
+    a.plot(x, r.true_value, "_", color=RUST, ms=14.2, mew=1.6)
+a.plot([], [], "_", color=RUST, ms=9, mew=1.6, label="true value")
 a.set_xticks([0, 1], ["VR hazard test", "on-road test"])
 a.set(ylabel="Training effect (percentage points)", ylim=(0, 20),
       title="(a) Effect of offering training vs. of completing it")
-a.legend(fontsize=8, frameon=False, loc="upper right")
+a.legend(fontsize=6.5, loc="upper right")
 a = ax[0, 1]                                                   # (b) sickness and dropout
 ss = np.linspace(0, 120, 300)
-a.plot(ss, expit(-3.2 + 0.06 * ss), color=RUST, lw=2.2, label="probability of stopping")
+a.plot(ss, expit(-3.2 + 0.06 * ss), color=RUST, lw=1.4, label="probability of stopping")
 t = vr == 1
-a.plot(ssq[t & ~drop], np.full((t & ~drop).sum(), -0.04), "|", color=SAGE, ms=12,
+a.plot(ssq[t & ~drop], np.full((t & ~drop).sum(), -0.04), "|", color=SAGE, ms=7.8,
        label="trainees who completed")
-a.plot(ssq[t & drop], np.full((t & drop).sum(), -0.09), "|", color=RUST, ms=12,
+a.plot(ssq[t & drop], np.full((t & drop).sum(), -0.09), "|", color=RUST, ms=7.8,
        label="trainees who stopped")
 a.set(xlim=(0, 120), ylim=(-0.13, 1), xlabel="Simulator sickness score (SSQ total)",
       ylabel="Probability of stopping training", title="(b) Sickness drives dropout")
-a.legend(fontsize=8, frameon=False, loc="upper left")
+a.legend(fontsize=6.5, loc="upper left")
 a = ax[1, 0]                                                   # (c) road learning curves
 hh = np.linspace(0, 8, 300)
 for start, col, lab, h in [(s0, RUST, "no VR training", h_c),
                            (s0 + g_road, SAGE, f"after {X:.0f} h of VR", h_x)]:
-    a.plot(hh, S_INF - (S_INF - start) * np.exp(-hh / TAU), color=col, lw=2.2, label=lab)
-    a.plot(h, CRIT, "o", color=col, mec=INK, ms=7)
-a.axhline(CRIT, color=INK, ls="--", lw=1)
+    a.plot(hh, S_INF - (S_INF - start) * np.exp(-hh / TAU), color=col, lw=1.4, label=lab)
+    a.plot(h, CRIT, "o", color=col, mec=INK, ms=4.5)
+a.axhline(CRIT, color=INK, ls="--", lw=0.6)
 a.annotate("", (h_x, CRIT), (h_c, CRIT),
-           arrowprops=dict(arrowstyle="<->", color=INK, lw=1.2))
+           arrowprops=dict(arrowstyle="<->", color=INK, lw=0.8))
 a.text(h_c + 0.25, CRIT - 3.5, f"{h_c - h_x:.2f} road hours saved", ha="left", va="top",
-       fontsize=8)
+       fontsize=6.5)
 a.set(xlabel="Supervised road practice (h)", ylabel="Hazards anticipated (%)",
       title=f"(c) Transfer: TER = {(h_c - h_x) / X:.2f} for {X:.0f} VR hours")
-a.legend(fontsize=8, frameon=False, loc="lower right")
+a.legend(fontsize=6.5, loc="lower right")
 a = ax[1, 1]                                                   # (d) retention
 tt = np.linspace(0, 12, 200)
-a.plot(months, adv, "o", color=INK, ms=7, label="trained minus control, by month")
+a.plot(months, adv, "o", color=INK, ms=4.5, label="trained minus control, by month")
 a.plot(tt, np.exp(np.polyfit(months, np.log(adv), 1)[1]) * np.exp(-k_log * tt), color=GOLD,
-       lw=2, label=f"log-linear fit: half-life {np.log(2) / k_log:.1f} months")
-a.plot(tt, g0 * np.exp(-k_nls * tt), color=SAGE, lw=2, ls="--",
+       lw=1.3, label=f"log-linear fit: half-life {np.log(2) / k_log:.1f} months")
+a.plot(tt, g0 * np.exp(-k_nls * tt), color=SAGE, lw=1.3, ls="--",
        label=f"nonlinear fit: half-life {np.log(2) / k_nls:.1f} months")
-a.plot(tt, EFFECT * np.exp(-np.log(2) / HALF * tt), color=RUST, lw=1.2, ls=":",
+a.plot(tt, EFFECT * np.exp(-np.log(2) / HALF * tt), color=RUST, lw=0.8, ls=":",
        label=f"true decay: half-life {HALF:.0f} months")
 a.set(xlabel="Months after training", ylabel="Advantage of trained drivers (points)",
       ylim=(0, 20), title="(d) Skills decay without practice")
-a.legend(fontsize=8, frameon=False, loc="upper right")
-fig.tight_layout(); fig.savefig("chap11_fig02_vr_training.png", dpi=200)
+a.legend(fontsize=6.5, loc="upper right")
+fig.tight_layout(); fig.savefig("chap11_fig02_vr_training.png", dpi=300)
