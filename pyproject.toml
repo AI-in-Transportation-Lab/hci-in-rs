@@ -1,0 +1,19 @@
+[project]
+name = "hci-in-rs"
+version = "0.1.0"
+license = "MIT"
+license-files = ["LICENSE"]
+description = "Companion code for the book Human-Computer Interaction in Roadway Safety: Principles, Methods, and Applications"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "scikit-learn>=1.4",
+    "statsmodels>=0.14",
+    "matplotlib>=3.8",
+]
+
+[tool.uv]
+package = false
