@@ -142,31 +142,35 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
 col = {"baseline HMI": GOLD, "revised HMI": SAGE}
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 4))
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.2, 2.7))
 
 x = np.arange(len(SEGMENTS))                                   # (a) workload by segment
 for k, cond in enumerate(CONDITIONS):
     s = df[df.condition == cond].groupby("segment")["tlx_raw"]
     a1.bar(x + (k - 0.5) * 0.38, s.mean()[SEGMENTS], 0.36, yerr=s.sem()[SEGMENTS],
-           capsize=3, color=col[cond], edgecolor=INK, lw=0.5, ecolor=INK, label=cond)
-a1.set_xticks(x, [s.replace(" ", "\n") for s in SEGMENTS], fontsize=9)
+           capsize=2.3, color=col[cond], edgecolor=INK, lw=0.5, ecolor=INK, label=cond)
+a1.set_xticks(x, [s.replace(" ", "\n") for s in SEGMENTS], fontsize=7)
 a1.set(ylabel="Raw NASA-TLX", ylim=(0, 45),
        title="(a) Workload is a property of the segment")
-a1.legend(fontsize=8, frameon=False, loc="upper left")
+a1.legend(fontsize=6.5, loc="upper left")
 
 for cond in CONDITIONS:                                        # (b) longest glance at the taper
     g = np.sort(df[(df.segment == "taper") & (df.condition == cond)]["longest_glance"])
-    a2.step(g, np.arange(1, len(g) + 1) / len(g), where="post", color=col[cond], lw=2.2,
+    a2.step(g, np.arange(1, len(g) + 1) / len(g), where="post", color=col[cond], lw=1.7,
             label=cond)
-a2.axvline(2.0, color=RUST, ls="--", lw=1.2)
-a2.text(2.06, 0.06, "2.0 s criterion", fontsize=8, color=RUST)
+a2.axvline(2.0, color=RUST, ls="--", lw=0.9)
+a2.text(2.06, 0.06, "2.0 s criterion", fontsize=6.5, color=RUST)
 a2.set(xlabel="Longest single off-road glance at the taper (s)",
        ylabel="Cumulative share of drivers", ylim=(0, 1.04),
        title="(b) The criterion is met by the median, not the tail")
-a2.legend(fontsize=8, frameon=False, loc="lower right")
+a2.legend(fontsize=6.5, loc="lower right")
 
 fig.tight_layout()
-fig.savefig("fig02_06_cs1_workload.png", dpi=200)
+fig.savefig("fig02_06_cs1_workload.png", dpi=300)
 print("\n   figure written to fig02_06_cs1_workload.png")

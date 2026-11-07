@@ -134,9 +134,13 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
 col = dict(zip(CONDITIONS, [GOLD, SAGE]))
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 4))
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.2, 2.7))
 
 # (a) action rate when the system is silent, against the risk silence hides
 w, xs = 0.38, np.arange(len(CONTEXTS))
@@ -147,7 +151,7 @@ for k, cond in enumerate(CONDITIONS):
            label=cond)
 a1b = a1.twinx()
 a1b.plot(xs, [posterior(c, False) for c in CONTEXTS], "o-", color=RUST, mec=INK,
-         lw=2, ms=7, label="P(conflict | silence), right")
+         lw=1.6, ms=5.4, label="P(conflict | silence), right")
 a1b.set_ylabel("P(conflict | silence)", color=RUST)
 a1b.tick_params(axis="y", colors=RUST)
 a1b.spines["right"].set(visible=True, color=RUST)
@@ -156,7 +160,7 @@ a1.set_xticks(xs, CONTEXTS)
 a1.set(ylabel="P(protective action | silence)", ylim=(0, 0.75),
        title="(a) Reliance on silence vs. what it hides")
 h1, l1 = a1.get_legend_handles_labels(); h2, l2 = a1b.get_legend_handles_labels()
-a1.legend(h1 + h2, l1 + l2, fontsize=8, frameon=False, loc="upper left")
+a1.legend(h1 + h2, l1 + l2, fontsize=6.5, loc="upper left")
 
 # (b) unprotected conflicts
 for k, cond in enumerate(CONDITIONS):
@@ -164,12 +168,12 @@ for k, cond in enumerate(CONDITIONS):
                        df.conflict]["acted"].mean()) for c in CONTEXTS]
     b = a2.bar(xs + (k - 0.5) * w, v, w * 0.94, color=col[cond], edgecolor=INK,
                lw=0.5, label=cond)
-    a2.bar_label(b, fmt="%.1f%%", fontsize=8, padding=2)
+    a2.bar_label(b, fmt="%.1f%%", fontsize=6.5, padding=1.6)
 a2.set_xticks(xs, CONTEXTS)
 a2.set(ylabel="Conflicts left unprotected (%)", ylim=(0, 56),
-       title="(b) The outcome the questionnaire could not see")
-a2.legend(fontsize=8, frameon=False, loc="upper left")
+       title="(b) What the questionnaire could not see")
+a2.legend(fontsize=6.5, loc="upper left")
 
 fig.tight_layout()
-fig.savefig("fig02_07_cs2_trust.png", dpi=200)
+fig.savefig("fig02_07_cs2_trust.png", dpi=300)
 print("\n   figure written to fig02_07_cs2_trust.png")
