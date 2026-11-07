@@ -140,9 +140,14 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig = plt.figure(figsize=(13, 8.0))
-gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.1], hspace=0.45, wspace=0.25)
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig = plt.figure(figsize=(6.2, 5.0))
+gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.1], width_ratios=[1.3, 1], hspace=0.45,
+                      wspace=0.25)
 a0, a2 = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
 a1 = fig.add_subplot(gs[1, :])
 groups = LANG + ["Pooled"]                                       # (a) comprehension
@@ -150,40 +155,40 @@ for k, (sym, c) in enumerate([("P1", GOLD), ("P2", SAGE), ("P3", SKY)]):
     t = test[test.symbol == sym].set_index("group").loc[groups]
     x = np.arange(len(groups)) + (k - 1) * 0.25
     a0.errorbar(x, t.share, yerr=[t.share - t.lo, t.hi - t.share], fmt="o", color=c,
-                mec=INK, ms=6, capsize=2, ecolor=INK, label=sym)
-a0.axhline(CRIT, color=RUST, ls="--", lw=1.2)
-a0.text(0.5, CRIT - 0.05, "two-thirds criterion", fontsize=7, color=RUST, ha="center")
-a0.set_xticks(np.arange(len(groups)), groups, fontsize=8)
-a0.set(ylim=(0.3, 1.02), ylabel="Share who understood the symbol",
+                mec=INK, ms=3.6, capsize=1.2, ecolor=INK, label=sym)
+a0.axhline(CRIT, color=RUST, ls="--", lw=0.7, label="two-thirds criterion")
+a0.set_xticks(np.arange(len(groups)), groups, fontsize=6.5)
+a0.set(ylim=(0.15, 1.03), ylabel="Share who understood the symbol",
        title="(a) Pictogram comprehension, 95% Wilson intervals")
-a0.legend(fontsize=8, frameon=False, loc="lower left", ncol=3)
+a0.legend(fontsize=6, loc="lower left", ncol=4, handlelength=1.5,
+          columnspacing=1.0)
 cm = LinearSegmentedColormap.from_list("reach", [RUST, GOLD, "#F6E7A6", SAGE])  # (b) reach
 im = a1.imshow(table.to_numpy(), cmap=cm, vmin=0, vmax=1, aspect="auto")
 for i in range(table.shape[0]):
     for j in range(table.shape[1]):
-        a1.text(j, i, f"{table.iat[i, j]:.2f}", ha="center", va="center", fontsize=8)
+        a1.text(j, i, f"{table.iat[i, j]:.2f}", ha="center", va="center", fontsize=6.5)
 WRAP = {"Older adults": "Older\nadults", "Blind or low vision": "Blind or\nlow vision",
         "Deaf or hard of hearing": "Deaf or\nhard of hearing",
         "Limited English": "Limited\nEnglish", "Low literacy": "Low\nliteracy",
         "No smartphone": "No\nsmartphone"}
-a1.set_xticks(range(table.shape[1]), [WRAP.get(c, c) for c in table.columns], fontsize=8)
-a1.set_yticks(range(table.shape[0]), table.index, fontsize=8)
+a1.set_xticks(range(table.shape[1]), [WRAP.get(c, c) for c in table.columns], fontsize=6.5)
+a1.set_yticks(range(table.shape[0]), table.index, fontsize=6.5)
 a1.grid(False)
 a1.set_title("(c) Share of each group that receives both messages")
 fig.colorbar(im, ax=a1, fraction=0.02, pad=0.01)
 for _, r in cands.iterrows():                                    # (c) worst-off group
-    a2.plot(r.cost_k, r.min_group_reach, "o", ms=6 + 12 * (r.mean_reach - 0.8) / 0.2,
+    a2.plot(r.cost_k, r.min_group_reach, "o", ms=4 + 7 * (r.mean_reach - 0.8) / 0.2,
             color=SAGE if "APS" in r.bundle else GOLD, mec=INK, alpha=0.9)
-LABEL = {"Baseline": (-2, 12, "left"), "Pictogram sign": (12, -3, "left"),
-         "Pictogram sign + Alert app": (10, 3, "left"),
-         "APS + Pictogram sign": (-10, -16, "right"),
-         "APS + Multilingual speech + Pictogram sign": (-10, 6, "right")}
+LABEL = {"Baseline": (-1, 7, "left"), "Pictogram sign": (7, -2, "left"),
+         "Pictogram sign + Alert app": (0, 7, "center"),
+         "APS + Pictogram sign": (-6, -9, "right"),
+         "APS + Multilingual speech + Pictogram sign": (-6, 4, "right")}
 for _, r in cands.iterrows():
     if r.bundle in LABEL:
         dx, dy, ha = LABEL[r.bundle]
         a2.annotate(r.bundle.replace("Multilingual speech", "ML speech"),
                     (r.cost_k, r.min_group_reach), xytext=(dx, dy), ha=ha,
-                    textcoords="offset points", fontsize=7)
+                    textcoords="offset points", fontsize=6)
 a2.set(xlabel="Cost per intersection ($ thousand)", ylabel="Reach of the worst-off group",
        xlim=(-1, 23), ylim=(-0.05, 1.08), title="(b) Only bundles with APS lift the floor")
-fig.savefig("chap08_fig02_inclusive_design.png", dpi=200, bbox_inches="tight")
+fig.savefig("chap08_fig02_inclusive_design.png", dpi=300, bbox_inches="tight")
