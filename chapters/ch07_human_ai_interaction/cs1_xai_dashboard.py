@@ -185,42 +185,47 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(2, 2, figsize=(11, 7.6))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(2, 2, figsize=(6.2, 4.8))
 order = np.argsort(-pred)[:15]                                           # (a) ranking
 lo, hi = np.percentile(boot_pred[:, order], [5, 95], axis=0)
 yy = np.arange(15)[::-1]
-ax[0, 0].hlines(yy, lo, hi, color=SAGE, lw=2.2)
-ax[0, 0].plot(pred[order], yy, "o", color=GOLD, mec=INK, ms=6,
-              label="model (90% refit band)")
-ax[0, 0].plot(truth[order], yy, "x", color=RUST, ms=6, label="true rate")
-ax[0, 0].axvline(thr, color=OLIVE, ls="--", lw=1.2)
-ax[0, 0].set_yticks(yy, [f"seg {i}" for i in order], fontsize=7)
+ax[0, 0].hlines(yy, lo, hi, color=SAGE, lw=1.6)
+ax[0, 0].plot(pred[order], yy, "o", color=GOLD, mec=INK, ms=4.2,
+              label="model (90% band)")
+ax[0, 0].plot(truth[order], yy, "x", color=RUST, ms=4.2, label="true rate")
+ax[0, 0].axvline(thr, color=OLIVE, ls="--", lw=0.8)
+ax[0, 0].set_yticks(yy, [f"seg {i}" for i in order], fontsize=6)
 ax[0, 0].set(xlabel="Crashes per mile-year", title="(a) Top 15 segments, with uncertainty")
-ax[0, 0].legend(fontsize=7, frameon=False, loc="center right")
+ax[0, 0].set_xlim(1, 14.5)
+ax[0, 0].legend(fontsize=6, loc="lower right")
 xs = np.arange(P)                                                        # (b) global
 ax[0, 1].bar(xs - 0.2, imp.model, 0.38, yerr=imp.boot_sd, color=GOLD, ecolor=INK,
              label="model (sd over refits)")
 ax[0, 1].bar(xs + 0.2, imp.truth, 0.38, color=SAGE, label="true process")
-ax[0, 1].set_xticks(xs, imp.index, fontsize=8)
+ax[0, 1].set_xticks(xs, imp.index, fontsize=6.5, rotation=30, ha="right")
 ax[0, 1].set(ylabel="Mean |phi| (log scale)",
-             title="(b) Global importance: model vs. truth")
-ax[0, 1].legend(fontsize=7, frameon=False)
+             title="(b) Global importance")
+ax[0, 1].legend(fontsize=6)
 oj = np.argsort(np.abs(pk_m[0]))                                         # (c) local
 ax[1, 0].barh(np.arange(P), pk_m[0, oj], color=np.where(pk_m[0, oj] > 0, RUST, SAGE))
-ax[1, 0].plot(pk_t[0, oj], np.arange(P), "D", color=INK, ms=5, label="truth")
-ax[1, 0].set_yticks(np.arange(P), [f"{FEAT[j]} = {xk[0, j]:g}" for j in oj], fontsize=8)
-ax[1, 0].axvline(0, color=INK, lw=0.8)
+ax[1, 0].plot(pk_t[0, oj], np.arange(P), "D", color=INK, ms=3.5, label="truth")
+ax[1, 0].set_yticks(np.arange(P), [f"{FEAT[j]} = {xk[0, j]:g}" for j in oj], fontsize=6.5)
+ax[1, 0].axvline(0, color=INK, lw=0.6)
 ax[1, 0].set(xlabel="phi (log crashes per mile-year)",
              title=f"(c) Why segment {k} ranks first")
-ax[1, 0].legend(fontsize=7, frameon=False, loc="lower right")
+ax[1, 0].legend(fontsize=6, loc="lower right")
 cfp = cf.sort_values("cost")                                             # (d) what-if
 yy = np.arange(len(cfp))
 ax[1, 1].barh(yy + 0.2, cfp.model_cut, 0.38, color=GOLD, label="model")
 ax[1, 1].barh(yy - 0.2, cfp.true_cut, 0.38, color=SAGE, label="true process")
 ax[1, 1].set_yticks(yy, [f"{c} (${v:.2f}M)" for c, v in zip(cfp.change, cfp.cost)],
-                    fontsize=7)
+                    fontsize=6)
 ax[1, 1].set(xlabel="Predicted reduction in crash rate (%)",
              title=f"(d) What-if for segment {k}")
-ax[1, 1].legend(fontsize=7, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap07_fig01_xai_dashboard.png", dpi=200)
+ax[1, 1].legend(fontsize=6, loc="lower right")
+fig.tight_layout(); fig.savefig("chap07_fig01_xai_dashboard.png", dpi=300)

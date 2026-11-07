@@ -171,42 +171,46 @@ plt.rcParams.update({
     "xtick.color": INK, "ytick.color": INK,
     "figure.facecolor": PAPER, "axes.facecolor": PAPER,
     "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6})
-fig, ax = plt.subplots(1, 3, figsize=(13, 4.2))
+    "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.4,
+    "font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.5,
+    "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False})
+fig, ax = plt.subplots(1, 3, figsize=(6.2, 2.45))
 edges = np.quantile(city.true_rate, np.linspace(0, 1, 9))              # (a) calibration
 for g, m, c in [("A", ~isB, SAGE), ("B", isB, RUST)]:
     b = np.clip(np.digitize(city.true_rate[m], edges[1:-1]), 0, 7)
     t = pd.Series(city.true_rate[m].to_numpy()).groupby(b).mean()
     for score, mk, lab in [(pred_base, "o", "baseline"), (pred_corr, "s", "corrected")]:
         p = pd.Series(score[m]).groupby(b).mean()
-        ax[0].plot(t, p, mk + ("-" if lab == "corrected" else "--"), color=c, ms=5,
+        ax[0].plot(t, p, mk + ("-" if lab == "corrected" else "--"), color=c, ms=3,
                    mfc=c if lab == "corrected" else PAPER, label=f"{g}, {lab}")
 lim = [0, city.true_rate.quantile(0.98)]
-ax[0].plot(lim, lim, ":", color=INK, lw=1)
+ax[0].plot(lim, lim, ":", color=INK, lw=0.6)
 ax[0].set(xlabel="True injury crashes per year", ylabel="Predicted",
           title="(a) Calibration by community")
-ax[0].legend(fontsize=8, frameon=False, loc="upper left")
+ax[0].legend(fontsize=6.5, loc="upper left")
 # (b) equal opportunity
 names = list(policies); x = np.arange(len(names))
 for k, (g, c) in enumerate([("A", SAGE), ("B", RUST)]):
     tpr = [audit[(audit.policy == n) & (audit.group == g)].TPR.iloc[0] for n in names]
     ppv = [audit[(audit.policy == n) & (audit.group == g)].PPV.iloc[0] for n in names]
     ax[1].bar(x + (k - 0.5) * 0.36, tpr, 0.34, color=c, label=f"TPR, {g}")
-    ax[1].plot(x + (k - 0.5) * 0.36, ppv, "D", color=INK, mfc=GOLD, ms=6,
+    ax[1].plot(x + (k - 0.5) * 0.36, ppv, "D", color=INK, mfc=GOLD, ms=3.6,
                label="PPV" if k == 0 else None)
-ax[1].set_xticks(x, [n.replace(" ", "\n") for n in names], fontsize=8)
+ax[1].set_xticks(x, [n.replace(" ", "\n") for n in names], fontsize=6.5)
 ax[1].set(ylim=(0, 1.15), ylabel="Rate", title="(b) True-positive rate and PPV")
-ax[1].legend(fontsize=8, frameon=False, loc="upper center", ncol=3)
+ax[1].legend(fontsize=6.5, loc="upper center", ncol=3)
 months = np.arange(1, MONTHS + 1)                                      # (c) feedback loop
 for policy, c in [("naive", RUST), ("per-unit", SAGE)]:
     lo, hi = np.percentile(loop[policy], [5, 95], axis=0)
     ax[2].fill_between(months, lo, hi, color=c, alpha=0.25)
-    ax[2].plot(months, loop[policy].mean(0), color=c, lw=2,
-               label="allocate by detections" if policy == "naive"
-               else "allocate by detections per unit")
-ax[2].axhline(0.5, color=INK, ls=":", lw=1)
-ax[2].text(24.5, 0.52, "true share of risk", fontsize=8, ha="right")
-ax[2].set(xlabel="Month", ylabel="Share of detection units in B", ylim=(0, 0.7),
-          title="(c) A feedback loop locks in history")
-ax[2].legend(fontsize=8, frameon=False, loc="lower right")
-fig.tight_layout(); fig.savefig("chap07_fig02_bias_audit.png", dpi=200)
+    ax[2].plot(months, loop[policy].mean(0), color=c, lw=1.2,
+               label="by detections" if policy == "naive"
+               else "by detections per unit")
+ax[2].axhline(0.5, color=INK, ls=":", lw=0.6)
+ax[2].text(24.5, 0.52, "true share of risk", fontsize=6.5, ha="right")
+ax[2].set(xlabel="Month", ylabel="Share of units in B", ylim=(0, 0.7),
+          title="(c) Feedback locks in history")
+ax[2].legend(fontsize=6.5, loc="lower right")
+fig.tight_layout(); fig.savefig("chap07_fig02_bias_audit.png", dpi=300)
